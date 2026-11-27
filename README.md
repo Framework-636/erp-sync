@@ -88,7 +88,43 @@ Ideas outside these limits are parked as issues labeled `later`.
 
 ## Running it locally
 
-Setup instructions will be added as each milestone lands.
+These steps set the project up on a new Windows computer. More steps will be added as each milestone lands.
+
+### 1. Install the tools
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). In PowerShell: `winget install Microsoft.DotNet.SDK.10`
+- [VS Code](https://code.visualstudio.com/) with the **C# Dev Kit** extension
+- [Git](https://git-scm.com/)
+
+Check the SDK with `dotnet --version`. It should print `10.0.` followed by a number. The exact version this repo uses is pinned in `global.json`.
+
+### 2. Get the code and build it
+
+```powershell
+git clone https://github.com/Framework-636/erp-sync.git
+cd erp-sync
+dotnet restore
+dotnet build
+dotnet test
+```
+
+If `dotnet restore` fails with `NU1100`, NuGet can't find nuget.org. Add it, then restore again:
+
+```powershell
+dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+```
+
+### 3. Secrets
+
+No passwords or keys are stored in this repo. Each computer keeps its own in .NET user secrets, a file in your Windows profile (`%APPDATA%\Microsoft\UserSecrets\`) that sits outside the repo folder.
+
+The secrets each project needs will be listed here as they're added, with the command to set each one, for example:
+
+```powershell
+dotnet user-secrets set "Some:Setting" "value" --project src/ErpSync.Bridge
+```
+
+`dotnet user-secrets list --project <project>` shows what's set on this computer.
 
 ## About
 
