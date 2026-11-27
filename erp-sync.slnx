@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ErpSync.Api/ErpSync.Api.csproj" />
+    <Project Path="src/ErpSync.Bridge/ErpSync.Bridge.csproj" />
+    <Project Path="src/ErpSync.ErpSimulator/ErpSync.ErpSimulator.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ErpSync.Api.Tests/ErpSync.Api.Tests.csproj" />
+    <Project Path="tests/ErpSync.Bridge.Tests/ErpSync.Bridge.Tests.csproj" />
+  </Folder>
+</Solution>
