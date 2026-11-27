@@ -1,0 +1,15 @@
+services:
+  erp-sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: erp-sync-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    ports:
+      - "127.0.0.1:1433:1433"
+    volumes:
+      - erp-sql-data:/var/opt/mssql
+
+volumes:
+  erp-sql-data:

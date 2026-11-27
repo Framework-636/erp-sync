@@ -5,6 +5,16 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>0d76b91d-3469-4169-a427-a524ed56a445</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="11.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Sql\**\*.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>
