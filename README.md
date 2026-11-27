@@ -118,13 +118,50 @@ dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
 
 No passwords or keys are stored in this repo. Each computer keeps its own in .NET user secrets, a file in your Windows profile (`%APPDATA%\Microsoft\UserSecrets\`) that sits outside the repo folder.
 
-The secrets each project needs will be listed here as they're added, with the command to set each one, for example:
-
-```powershell
-dotnet user-secrets set "Some:Setting" "value" --project src/ErpSync.Bridge
-```
+| Project                    | Setting                        | What it is                                                          |
+| -------------------------- | ------------------------------ | ------------------------------------------------------------------- |
+| `src/ErpSync.ErpSimulator` | `ConnectionStrings:ErpStandIn` | How the simulator reaches the stand-in ERP database (set in step 5) |
 
 `dotnet user-secrets list --project <project>` shows what's set on this computer.
+
+### 4. Start SQL Server (the stand-in ERP)
+
+Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) (`winget install Docker.DockerDesktop`), start it, and wait for "Engine running". `docker info` should show a `Server:` section without errors.
+
+Create a file named `.env` in the repo folder with one line. Git ignores this file.
+
+```
+MSSQL_SA_PASSWORD=Choose-A-Strong-Password-1
+```
+
+Use at least 8 characters with three of: uppercase, lowercase, digits, symbols. Avoid `;`, `$` and quotes. Then start SQL Server:
+
+```powershell
+docker compose up -d
+docker logs erp-sync-sql
+```
+
+Wait until the log shows `SQL Server is now ready for client connections`. The database files live in the Docker volume `erp-sql-data`, so they survive restarts. `docker compose down` stops SQL Server and keeps the data; `docker compose down -v` also deletes the data.
+
+SQL Server only reads `MSSQL_SA_PASSWORD` the first time it creates the volume. To change the password later, run `ALTER LOGIN sa WITH PASSWORD = N'...'` in `sqlcmd`, then update `.env` and the secret below.
+
+### 5. Create and fill the stand-in ERP
+
+Save the connection string as a secret, with the password from `.env`. Use `127.0.0.1`, not `localhost`, because the port is published on the IPv4 address only.
+
+```powershell
+dotnet user-secrets set "ConnectionStrings:ErpStandIn" "Server=127.0.0.1,1433;Database=ErpStandIn;User Id=sa;Password=YOUR-PASSWORD;TrustServerCertificate=True" --project src/ErpSync.ErpSimulator
+```
+
+Then create the tables, add the made-up data, and start the simulator:
+
+```powershell
+dotnet run --project src/ErpSync.ErpSimulator -- init     # creates the ErpStandIn database and tables; safe to run again
+dotnet run --project src/ErpSync.ErpSimulator -- seed     # adds about 5,000 items; refuses if items already exist
+dotnet run --project src/ErpSync.ErpSimulator -- run      # changes quantities every 3 seconds until Ctrl+C
+```
+
+`seed --reset` deletes all items and seeds again, giving the same data every time. `run 10` changes things every 10 seconds instead of 3.
 
 ## About
 
